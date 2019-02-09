@@ -6,6 +6,7 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from jwxt import jwxt
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.events']
@@ -124,9 +125,17 @@ if __name__ == "__main__":
 
     service = build('calendar', 'v3', credentials=creds)
 
-    with open(HTML_FILE, 'r') as schedule:
-        text = schedule.read()
-        soup = BeautifulSoup(text, 'lxml')
+
+    username = input('请输入用户名：')
+    password = input('请输入密码：')
+    jw = jwxt(username,password)
+    r = jw.session.get('http://10.3.255.178:9001/xkAction.do?actionType=6')
+    print(r.text)
+    soup = BeautifulSoup(r.text,'lxml')
+
+    # with open(HTML_FILE, 'r') as schedule:
+    #     text = schedule.read()
+    #     soup = BeautifulSoup(text, 'lxml')
 
     name = ''
     teacher = ''

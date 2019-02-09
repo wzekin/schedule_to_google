@@ -3,7 +3,7 @@
 ## How to use
 
 1. pip install -r requestment.txt  
-2. 将 https://jwxt.bupt.edu.cn/xkAction.do?actionType=6 这个网页保存到目录下，重命名为class.html  
+2. ~~将 https://jwxt.bupt.edu.cn/xkAction.do?actionType=6 这个网页保存到目录下，重命名为class.html~~
 3. enjoy it 
 
 ## tips
