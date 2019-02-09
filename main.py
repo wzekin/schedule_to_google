@@ -130,7 +130,6 @@ if __name__ == "__main__":
     password = input('请输入密码：')
     jw = jwxt(username,password)
     r = jw.session.get('http://10.3.255.178:9001/xkAction.do?actionType=6')
-    print(r.text)
     soup = BeautifulSoup(r.text,'lxml')
 
     # with open(HTML_FILE, 'r') as schedule:

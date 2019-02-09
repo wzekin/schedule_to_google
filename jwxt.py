@@ -11,7 +11,6 @@ class jwxt(auth):
     def __init__(self, username, password):
         auth.__init__(self,username,password)
         r = self.session.get('http://10.3.255.178:9001/caslogin.jsp')
-        print(r.text)
 
     def QBList(self):
         r = self.session.get(QBURL)
@@ -45,7 +44,3 @@ class jwxt(auth):
                 pass
 
         return data
-
-if __name__ == "__main__":
-    jw = jwxt('2018211236','985523')
-    print(jw.session.cookies)

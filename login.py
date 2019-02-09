@@ -18,4 +18,3 @@ class auth:
         data['username'] = username
         data['password'] = password
         r = self.session.post(AUTHURL, data=data, allow_redirects=False)
-        print(r.headers)
