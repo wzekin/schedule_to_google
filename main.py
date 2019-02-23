@@ -28,8 +28,8 @@ def insert(summary, location, descripton, start_time, end_time):
     Prints the start and name of the next 10 events on the user's calendar.
     """
     time = service.freebusy().query(body={
-        "timeMin": start_time,
-        "timeMax": end_time,
+        "timeMin": start_time.isoformat(),
+        "timeMax": end_time.isoformat(),
         "items": [
             {
                 "id": "primary"
@@ -37,25 +37,22 @@ def insert(summary, location, descripton, start_time, end_time):
         ]
     }).execute()
     for i in time['calendars']['primary']['busy']:
-        start = datetime.datetime.strptime(i['start'],'%Y-%m-%dT%H:%M:%S%z')
-        end = datetime.datetime.strptime(i['end'],'%Y-%m-%dT%H:%M:%S%z')
-        start_ = datetime.datetime.strptime(start_time,'%Y-%m-%dT%H:%M:%S%z')
-        end_ = datetime.datetime.strptime(end_time,'%Y-%m-%dT%H:%M:%S%z')
-        if (start - start_ < datetime.timedelta(minutes=1) and end - end_ < datetime.timedelta(minutes=1)):
+        start = datetime.datetime.strptime(i['start'], '%Y-%m-%dT%H:%M:%S%z')
+        end = datetime.datetime.strptime(i['end'], '%Y-%m-%dT%H:%M:%S%z')
+        if (start - start_time < datetime.timedelta(minutes=1) and end - end_time < datetime.timedelta(minutes=1)):
             print('此事件已被创建！')
             return
 
-    service.events().insert(calendarId='primary', body={
+    body = {
         "end": {
-            "dateTime": end_time
+            "dateTime": end_time.isoformat()
         },
         "start": {
-            "dateTime": start_time
+            "dateTime": start_time.isoformat()
         },
         "description": descripton,
         "summary": summary,
         "location": location,
-        "colorId": get_color_from_name(summary),
         "reminders": {
             "overrides": [
                 {
@@ -65,7 +62,15 @@ def insert(summary, location, descripton, start_time, end_time):
             ],
             "useDefault": False
         }
-    }).execute()
+    }
+
+    if start_time.hour == 8:
+        body['reminders']['overrides'].append({
+            "minutes": 540,
+            "method": "popup"
+        })
+
+    service.events().insert(calendarId='primary', body=body).execute()
 
 
 def return_week(s):
@@ -206,4 +211,4 @@ if __name__ == "__main__":
                 datetime.timedelta(hours=number) - \
                 datetime.timedelta(minutes=10)
             insert(name, location, teacher,
-                    start_time.isoformat(), end_time.isoformat())
+                   start_time, end_time)

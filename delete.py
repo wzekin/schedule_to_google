@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
-SCOPES = ['https://www.googleapis.com/auth/calendar.events']
+SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 if __name__ == "__main__":
     creds = None
@@ -30,8 +30,9 @@ if __name__ == "__main__":
             pickle.dump(creds, token)
 
     service = build('calendar', 'v3', credentials=creds)
-    lists = service.events().list(calendarId='primary').execute()
-    for i in lists['items']:
-        print(i)
-        service.events().delete(calendarId='primary',
-                                eventId=i['id']).execute()
+    lists = service.events().list(calendarId='primary', showDeleted=True).execute()
+    print(lists)
+    # for i in lists['items']:
+    #     print(i)
+    #     service.events().delete(calendarId='primary',
+    #                             eventId=i['id']).execute()
