@@ -245,5 +245,7 @@ if __name__ == "__main__":
                     datetime.timedelta(minutes=10)
                 insert(name, location, teacher,
                        start_time, end_time)
-    with open('my.ics', 'w') as my_file:
-        my_file.writelines(c)
+
+    if args.output:
+        with open('my.ics', 'w') as my_file:
+            my_file.writelines(c)
