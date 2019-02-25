@@ -6,11 +6,18 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from ics import Calendar, Event
 from jwxt import jwxt
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '-o', '--output', help="whether export calandar as ics", action='store_true')
+parser.add_argument('-i', '--input', type=str, help="the input html file")
+args = parser.parse_args()
+print(args)
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-HTML_FILE = 'class.html'
 
 
 def check():
@@ -23,7 +30,8 @@ def check():
         return True
 
 
-def insert(summary, location, descripton, start_time, end_time):
+def insert(summary,
+           location, descripton, start_time, end_time):
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
@@ -135,40 +143,45 @@ def get_color_from_name(s: str):
 
 
 if __name__ == "__main__":
-    creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server()
-        # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+    if not args.output:
+        creds = None
+        # The file token.pickle stores the user's access and refresh tokens, and is
+        # created automatically when the authorization flow completes for the first
+        # time.
+        if os.path.exists('token.pickle'):
+            with open('token.pickle', 'rb') as token:
+                creds = pickle.load(token)
+        # If there are no (valid) credentials available, let the user log in.
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'credentials.json', SCOPES)
+                creds = flow.run_local_server()
+            # Save the credentials for the next run
+            with open('token.pickle', 'wb') as token:
+                pickle.dump(creds, token)
 
-    service = build('calendar', 'v3', credentials=creds)
+        service = build('calendar', 'v3', credentials=creds)
 
-    # username = input('请输入用户名：')
-    # password = input('请输入密码：')
-    # jw = jwxt(username, password)
-    # r = jw.session.get('http://10.3.255.178:9001/xkAction.do?actionType=6')
-    # soup = BeautifulSoup(r.text, 'lxml')
+    if args.input == None:
+        username = input('请输入用户名：')
+        password = input('请输入密码：')
+        jw = jwxt(username, password)
+        r = jw.session.get('http://10.3.255.178:9001/xkAction.do?actionType=6')
+        soup = BeautifulSoup(r.text, 'lxml')
 
-    with open(HTML_FILE, 'r') as schedule:
-        text = schedule.read()
-        soup = BeautifulSoup(text, 'lxml')
+    else:
+        with open(args.input, 'r') as schedule:
+            text = schedule.read()
+            soup = BeautifulSoup(text, 'lxml')
 
     name = ''
     teacher = ''
     location = ''
+    if args.output:
+        c = Calendar()
     for tr in soup.findAll('tr', class_='odd'):
         time_ = datetime.datetime.strptime(
             '2019-02-25 08:00:00+0800', '%Y-%m-%d %H:%M:%S%z')  # 开学第一天
@@ -197,18 +210,40 @@ if __name__ == "__main__":
             print('上课节数：', number)
             print('上课地点：', location)
         except:
-            pass
+            print('没有时间信息！！！')
+            continue
         if not check():
             continue
-        for week in return_week(weeks):
-            start_time = time_ + \
-                datetime.timedelta(days=weekday-1, weeks=week-1)
-            if(session < 5):
-                start_time += datetime.timedelta(hours=session-1)
-            else:
-                start_time += datetime.timedelta(hours=session, minutes=30)
-            end_time = start_time + \
-                datetime.timedelta(hours=number) - \
-                datetime.timedelta(minutes=10)
-            insert(name, location, teacher,
-                   start_time, end_time)
+        if args.output:
+            for week in return_week(weeks):
+                start_time = time_ + \
+                    datetime.timedelta(days=weekday-1, weeks=week-1)
+                if(session < 5):
+                    start_time += datetime.timedelta(hours=session-1)
+                else:
+                    start_time += datetime.timedelta(hours=session, minutes=30)
+                end_time = start_time + \
+                    datetime.timedelta(hours=number) - \
+                    datetime.timedelta(minutes=10)
+                e = Event()
+                e.name = name
+                e.begin = start_time.isoformat()
+                e.end = end_time.isoformat()
+                e.location = location
+                e.description = teacher
+                c.events.add(e)
+        else:
+            for week in return_week(weeks):
+                start_time = time_ + \
+                    datetime.timedelta(days=weekday-1, weeks=week-1)
+                if(session < 5):
+                    start_time += datetime.timedelta(hours=session-1)
+                else:
+                    start_time += datetime.timedelta(hours=session, minutes=30)
+                end_time = start_time + \
+                    datetime.timedelta(hours=number) - \
+                    datetime.timedelta(minutes=10)
+                insert(name, location, teacher,
+                       start_time, end_time)
+    with open('my.ics', 'w') as my_file:
+        my_file.writelines(c)
