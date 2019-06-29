@@ -10,7 +10,7 @@ BJGURL = 'http://10.3.255.178:9001/gradeLnAllAction.do?type=ln&oper=bjg'
 class jwxt(auth):
     def __init__(self, username, password):
         auth.__init__(self,username,password)
-        r = self.session.get('http://10.3.255.178:9001/caslogin.jsp')
+        r = self.session.get('https://jwxt.bupt.edu.cn/caslogin.jsp')
 
     def QBList(self):
         r = self.session.get(QBURL)

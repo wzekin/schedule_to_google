@@ -9,6 +9,7 @@ from google.auth.transport.requests import Request
 from ics import Calendar, Event
 from jwxt import jwxt
 import argparse
+import requests
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '-o', '--output', help="whether export calandar as ics", action='store_true')
@@ -19,6 +20,32 @@ print(args)
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
+requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += 'HIGH:!DH:!aNULL'
+try:
+        requests.packages.urllib3.contrib.pyopenssl.DEFAULT_SSL_CIPHER_LIST += 'HIGH:!DH:!aNULL'
+except AttributeError:
+        # no pyopenssl support used / needed / available
+    pass
+
+
+def getTime(start_time,session:int,number:int):
+    time_data = {
+            1:datetime.timedelta(minutes=0),
+            2:datetime.timedelta(minutes=50),
+            3:datetime.timedelta(minutes=110),
+            4:datetime.timedelta(minutes=160),
+            5:datetime.timedelta(minutes=210),
+            6:datetime.timedelta(minutes=300),
+            7:datetime.timedelta(minutes=350),
+            8:datetime.timedelta(minutes=405),
+            9:datetime.timedelta(minutes=460),
+            10:datetime.timedelta(minutes=515),
+            11:datetime.timedelta(minutes=565),
+            12:datetime.timedelta(minutes=630),
+            13:datetime.timedelta(minutes=680),
+            14:datetime.timedelta(minutes=721)
+            }
+    return start_time+time_data[session],start_time + time_data[session+number-1] + datetime.timedelta(minutes=45)
 
 def check():
     comfirm = input('确认导入？(y/n)')
@@ -169,7 +196,7 @@ if __name__ == "__main__":
         username = input('请输入用户名：')
         password = input('请输入密码：')
         jw = jwxt(username, password)
-        r = jw.session.get('http://10.3.255.178:9001/xkAction.do?actionType=6')
+        r = jw.session.get('http://jwxt.bupt.edu.cn/xkAction.do?actionType=6')
         soup = BeautifulSoup(r.text, 'lxml')
 
     else:
@@ -184,7 +211,7 @@ if __name__ == "__main__":
         c = Calendar()
     for tr in soup.findAll('tr', class_='odd'):
         time_ = datetime.datetime.strptime(
-            '2019-02-25 08:00:00+0800', '%Y-%m-%d %H:%M:%S%z')  # 开学第一天
+            '2019-08-26 08:00:00+0800', '%Y-%m-%d %H:%M:%S%z')  # 开学第一天
         tds = tr.findAll('td')
         try:
             if len(tds) == 18:
@@ -218,13 +245,14 @@ if __name__ == "__main__":
             for week in return_week(weeks):
                 start_time = time_ + \
                     datetime.timedelta(days=weekday-1, weeks=week-1)
-                if(session < 5):
-                    start_time += datetime.timedelta(hours=session-1)
-                else:
-                    start_time += datetime.timedelta(hours=session, minutes=30)
-                end_time = start_time + \
-                    datetime.timedelta(hours=number) - \
-                    datetime.timedelta(minutes=10)
+                # if(session < 5):
+                    # start_time += datetime.timedelta(hours=session-1)
+                # else:
+                    # start_time += datetime.timedelta(hours=session, minutes=30)
+                # end_time = start_time + \
+                    # datetime.timedelta(hours=number) - \
+                    # datetime.timedelta(minutes=10)
+                start_time,end_time = getTime(start_time,session,number)
                 e = Event()
                 e.name = name
                 e.begin = start_time.isoformat()
@@ -236,13 +264,14 @@ if __name__ == "__main__":
             for week in return_week(weeks):
                 start_time = time_ + \
                     datetime.timedelta(days=weekday-1, weeks=week-1)
-                if(session < 5):
-                    start_time += datetime.timedelta(hours=session-1)
-                else:
-                    start_time += datetime.timedelta(hours=session, minutes=30)
-                end_time = start_time + \
-                    datetime.timedelta(hours=number) - \
-                    datetime.timedelta(minutes=10)
+                start_time,end_time = getTime(start_time,session,number)
+                # if(session < 5):
+                    # start_time += datetime.timedelta(hours=session-1)
+                # else:
+                    # start_time += datetime.timedelta(hours=session, minutes=30)
+                # end_time = start_time + \
+                    # datetime.timedelta(hours=number) - \
+                    # datetime.timedelta(minutes=10)
                 insert(name, location, teacher,
                        start_time, end_time)
 
