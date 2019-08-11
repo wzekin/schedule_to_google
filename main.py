@@ -196,7 +196,7 @@ if __name__ == "__main__":
         username = input('请输入用户名：')
         password = input('请输入密码：')
         jw = jwxt(username, password)
-        r = jw.session.get('http://jwxt.bupt.edu.cn/xkAction.do?actionType=6')
+        r = jw.session.get('https://jwxt.bupt.edu.cn/xkAction.do?actionType=6')
         soup = BeautifulSoup(r.text, 'lxml')
 
     else:
