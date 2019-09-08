@@ -1,6 +1,8 @@
+# coding=utf-8
 import getpass
-from ics import Calendar, Event
+
 from bupt_api.jwxt import Jwxt
+from ics import Calendar, Event
 
 
 def check():

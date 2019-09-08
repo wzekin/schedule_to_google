@@ -1,2 +1,2 @@
-bupt-api
+bupt-api==0.1.2
 ics==0.4
