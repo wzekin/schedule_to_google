@@ -1,8 +1,12 @@
 # coding=utf-8
 import getpass
+import datetime
 
-from bupt_api.jwxt import Jwxt
+from bupt_api.jwql import Jwql
 from ics import Calendar, Event
+
+term_start_time = datetime.datetime.strptime('2020-02-23 00:00:00+0800',
+                                             '%Y-%m-%d %H:%M:%S%z')  # 开学第一天
 
 
 def check():
@@ -19,8 +23,8 @@ if __name__ == "__main__":
     username = input('请输入用户名：')
     password = getpass.getpass('请输入密码：')
     c = Calendar()
-    jwxt = Jwxt(username, password)
-    classes = jwxt.get_classes()
+    jwxt = Jwql(username, password)
+    classes = jwxt.get_classes("2019-2020-2", term_start_time)
     for class_ in classes:
         print('---------------------------')
         print('课程名：', class_.name)
