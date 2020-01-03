@@ -5,7 +5,7 @@ import datetime
 from bupt_api.jwql import Jwql
 from ics import Calendar, Event
 
-term_start_time = datetime.datetime.strptime('2020-02-23 00:00:00+0800',
+term_start_time = datetime.datetime.strptime('2020-02-24 00:00:00+0800',
                                              '%Y-%m-%d %H:%M:%S%z')  # 开学第一天
 
 
