@@ -44,5 +44,5 @@ if __name__ == "__main__":
                 e.description = class_.teacher
                 c.events.add(e)
 
-    with open('my.ics', 'w') as my_file:
+    with open('my.ics', 'w', encoding='utf-8') as my_file:
         my_file.writelines(c)
